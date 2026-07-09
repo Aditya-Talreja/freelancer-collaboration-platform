@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fieldwork — Freelancer Collaboration Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">FW</span>
+      <span class="brand-name">Fieldwork</span>
+    </div>
+    <nav class="nav">
+      <button class="nav-item active" data-view="dashboard"><span class="nav-num">01</span>Dashboard</button>
+      <button class="nav-item" data-view="projects"><span class="nav-num">02</span>Projects</button>
+      <button class="nav-item" data-view="files"><span class="nav-num">03</span>Shared Files</button>
+      <button class="nav-item" data-view="time"><span class="nav-num">04</span>Time Tracking</button>
+      <button class="nav-item" data-view="payments"><span class="nav-num">05</span>Payments</button>
+      <button class="nav-item" data-view="profiles"><span class="nav-num">06</span>Profiles</button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="status-dot" id="dbStatusDot"></div>
+      <span id="dbStatusText">checking database…</span>
+    </div>
+  </aside>
+
+  <!-- ===== Main ===== -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section class="view active" id="view-dashboard">
+      <header class="view-head">
+        <h1>Dashboard</h1>
+        <p class="sub">Everything running through your workspace, at a glance.</p>
+      </header>
+      <div class="stat-row" id="statRow">
+        <div class="stat-card"><span class="stat-label">Active Projects</span><span class="stat-value" id="statProjects">—</span></div>
+        <div class="stat-card"><span class="stat-label">Hours Logged</span><span class="stat-value" id="statHours">—</span></div>
+        <div class="stat-card"><span class="stat-label">Pending Payments</span><span class="stat-value" id="statPending">—</span></div>
+        <div class="stat-card"><span class="stat-label">Freelancers</span><span class="stat-value" id="statUsers">—</span></div>
+      </div>
+      <div class="panel">
+        <h2>Recent Projects</h2>
+        <div id="dashProjectsList" class="mini-list"></div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section class="view" id="view-projects">
+      <header class="view-head">
+        <h1>Projects</h1>
+        <p class="sub">Create and manage work across every client relationship.</p>
+      </header>
+
+      <form class="form-inline" id="projectForm">
+        <select id="projClient" required></select>
+        <select id="projFreelancer"><option value="">Unassigned</option></select>
+        <input type="text" id="projTitle" placeholder="Project title" required>
+        <input type="text" id="projDesc" placeholder="Short description">
+        <button type="submit" class="btn-primary">Create Project</button>
+      </form>
+
+      <div class="table-wrap">
+        <table id="projectsTable">
+          <thead><tr><th>Title</th><th>Client</th><th>Freelancer</th><th>Status</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FILES -->
+    <section class="view" id="view-files">
+      <header class="view-head">
+        <h1>Shared Files</h1>
+        <p class="sub">Project assets, stored centrally and versioned by upload.</p>
+      </header>
+
+      <form class="form-inline" id="fileForm">
+        <input type="file" id="fileInput" required>
+        <button type="submit" class="btn-primary">Upload</button>
+      </form>
+      <p class="hint" id="fileHint"></p>
+
+      <div class="table-wrap">
+        <table id="filesTable">
+          <thead><tr><th>File</th><th>Size</th><th>Uploaded</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TIME TRACKING -->
+    <section class="view" id="view-time">
+      <header class="view-head">
+        <h1>Time Tracking</h1>
+        <p class="sub">Log hours against a project. Totals feed straight into invoicing.</p>
+      </header>
+
+      <form class="form-inline" id="timeForm">
+        <select id="timeProject" required></select>
+        <select id="timeFreelancer" required></select>
+        <input type="datetime-local" id="timeStart" required>
+        <input type="datetime-local" id="timeEnd" required>
+        <button type="submit" class="btn-primary">Log Time</button>
+      </form>
+      <p class="hint" id="timeHint"></p>
+
+      <div class="panel">
+        <h2>Project Summary</h2>
+        <select id="summaryProject"></select>
+        <div class="summary-box" id="summaryBox">Select a project to see logged hours.</div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="timeTable">
+          <thead><tr><th>Project</th><th>Freelancer</th><th>Start</th><th>End</th><th>Hours</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PAYMENTS -->
+    <section class="view" id="view-payments">
+      <header class="view-head">
+        <h1>Payments</h1>
+        <p class="sub">Raise an invoice, then mark it paid once settled.</p>
+        <p class="notice">Running in test mode — this simulates a Stripe/Razorpay webhook rather than moving real money.</p>
+      </header>
+
+      <form class="form-inline" id="paymentForm">
+        <select id="payProject" required></select>
+        <input type="number" id="payAmount" placeholder="Amount (₹)" step="0.01" required>
+        <button type="submit" class="btn-primary">Raise Invoice</button>
+      </form>
+
+      <div class="table-wrap">
+        <table id="paymentsTable">
+          <thead><tr><th>Project</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PROFILES -->
+    <section class="view" id="view-profiles">
+      <header class="view-head">
+        <h1>Profiles</h1>
+        <p class="sub">Portfolios, ratings, and reviews — the trust layer for every match.</p>
+      </header>
+
+      <form class="form-inline" id="userForm">
+        <input type="text" id="userName" placeholder="Full name" required>
+        <input type="email" id="userEmail" placeholder="Email" required>
+        <select id="userRole" required>
+          <option value="Freelancer">Freelancer</option>
+          <option value="Client">Client</option>
+        </select>
+        <input type="text" id="userPortfolio" placeholder="Portfolio link (optional)">
+        <button type="submit" class="btn-primary">Create Profile</button>
+      </form>
+
+      <div class="card-grid" id="profilesGrid"></div>
+
+      <div class="panel">
+        <h2>Leave a Review</h2>
+        <form class="form-inline" id="reviewForm">
+          <select id="reviewProject" required></select>
+          <select id="reviewRating" required>
+            <option value="5">★★★★★ (5)</option>
+            <option value="4">★★★★☆ (4)</option>
+            <option value="3">★★★☆☆ (3)</option>
+            <option value="2">★★☆☆☆ (2)</option>
+            <option value="1">★☆☆☆☆ (1)</option>
+          </select>
+          <input type="text" id="reviewComment" placeholder="Comment">
+          <button type="submit" class="btn-primary">Submit Review</button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
