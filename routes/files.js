@@ -9,6 +9,12 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 
 
 function getContainerClient() {
     const connStr = process.env.AZURE_STORAGE_CONNECTION_STRING;
+    if (!connStr) {
+        throw new Error(
+            'AZURE_STORAGE_CONNECTION_STRING is not configured. ' +
+            'Add it in Azure Portal → App Service → Configuration → Application settings.'
+        );
+    }
     const containerName = process.env.AZURE_STORAGE_CONTAINER || 'project-files';
     const blobServiceClient = BlobServiceClient.fromConnectionString(connStr);
     return blobServiceClient.getContainerClient(containerName);

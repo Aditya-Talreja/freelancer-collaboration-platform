@@ -2,6 +2,16 @@
 const sql = require('mssql');
 require('dotenv').config();
 
+// Validate required DB environment variables early and clearly
+const requiredVars = ['DB_SERVER', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'];
+const missingVars = requiredVars.filter(v => !process.env[v]);
+
+if (missingVars.length > 0) {
+    console.warn(`⚠️  Database config incomplete — missing: ${missingVars.join(', ')}`);
+    console.warn('   API routes that need the database will return 503 until these are set.');
+    console.warn('   Set them in Azure Portal → App Service → Configuration → Application settings');
+}
+
 const config = {
     server: process.env.DB_SERVER,
     database: process.env.DB_NAME,
@@ -22,6 +32,14 @@ const config = {
 let poolPromise;
 
 function getPool() {
+    // Fail fast with a clear message if DB credentials are missing
+    if (missingVars.length > 0) {
+        return Promise.reject(new Error(
+            `Database not configured — missing environment variables: ${missingVars.join(', ')}. ` +
+            'Add them in Azure Portal → App Service → Configuration → Application settings.'
+        ));
+    }
+
     if (!poolPromise) {
         poolPromise = new sql.ConnectionPool(config)
             .connect()

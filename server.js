@@ -4,8 +4,29 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+// ===== Global error handlers — prevent silent crashes on Azure =====
+process.on('uncaughtException', (err) => {
+    console.error('❌ Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+// ===== Startup diagnostics — helps debug in Azure Log Stream =====
+console.log('--- Startup Diagnostics ---');
+console.log('Node version:', process.version);
+console.log('PORT:', PORT);
+console.log('DB_SERVER:', process.env.DB_SERVER ? '✅ set' : '❌ MISSING');
+console.log('DB_NAME:', process.env.DB_NAME ? '✅ set' : '❌ MISSING');
+console.log('DB_USER:', process.env.DB_USER ? '✅ set' : '❌ MISSING');
+console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? '✅ set' : '❌ MISSING');
+console.log('AZURE_STORAGE_CONNECTION_STRING:', process.env.AZURE_STORAGE_CONNECTION_STRING ? '✅ set' : '❌ MISSING');
+console.log('AZURE_STORAGE_CONTAINER:', process.env.AZURE_STORAGE_CONTAINER || '(default: project-files)');
+console.log('---------------------------');
 
 app.use(cors());
 app.use(express.json());
