@@ -26,6 +26,7 @@ console.log('DB_USER:', process.env.DB_USER ? '✅ set' : '❌ MISSING');
 console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? '✅ set' : '❌ MISSING');
 console.log('AZURE_STORAGE_CONNECTION_STRING:', process.env.AZURE_STORAGE_CONNECTION_STRING ? '✅ set' : '❌ MISSING');
 console.log('AZURE_STORAGE_CONTAINER:', process.env.AZURE_STORAGE_CONTAINER || '(default: project-files)');
+console.log('AZURE_FUNCTION_CALC_HOURS_URL:', process.env.AZURE_FUNCTION_CALC_HOURS_URL ? '✅ set' : '⚠️  MISSING (will use local calculation)');
 console.log('---------------------------');
 
 app.use(cors());
