@@ -63,7 +63,20 @@ function populateProjectSelects() {
 }
 
 // ---------- Dashboard ----------
+function showDashboardLoading(show) {
+  const loader = document.getElementById('dashboardLoading');
+  const content = document.getElementById('dashboardContent');
+  if (show) {
+    loader.style.display = 'flex';
+    content.classList.add('is-loading');
+  } else {
+    loader.style.display = 'none';
+    content.classList.remove('is-loading');
+  }
+}
+
 async function loadDashboard() {
+  showDashboardLoading(true);
   try {
     const [users, projects] = await Promise.all([api('/users'), api('/projects')]);
     USERS = users; PROJECTS = projects;
@@ -89,11 +102,14 @@ async function loadDashboard() {
     const list = document.getElementById('dashProjectsList');
     list.innerHTML = projects.slice(0, 6).map(p => `
       <div class="mini-row">
-        <span>${p.Title} <span style="color:var(--ink-soft)">— ${p.ClientName || 'Unknown client'}</span></span>
+        <span>${p.Title} <span style="color:var(--hint)">— ${p.ClientName || 'Unknown client'}</span></span>
         <span class="tag ${p.Status === 'Completed' ? 'completed' : p.Status === 'Open' ? 'open' : ''}">${p.Status}</span>
       </div>
     `).join('') || '<p class="hint">No projects yet — create one in the Projects tab.</p>';
+
+    showDashboardLoading(false);
   } catch (e) {
+    showDashboardLoading(false);
     toast('Failed to load dashboard: ' + e.message, true);
   }
 }
@@ -157,7 +173,12 @@ async function loadFiles() {
         <td>${f.name}</td>
         <td class="num">${f.sizeKB} KB</td>
         <td>${fmtDate(f.lastModified)}</td>
-        <td><button class="btn-text" onclick="deleteFile('${f.name}')">Delete</button></td>
+        <td>
+          <div class="action-btns">
+            <a href="${f.url}" target="_blank" rel="noopener" class="btn-primary btn-sm" style="text-decoration:none;">Download</a>
+            <button class="btn-danger btn-sm" onclick="deleteFile('${f.name}')">Delete</button>
+          </div>
+        </td>
       </tr>
     `).join('') || '<tr><td colspan="4" class="hint">No files uploaded yet.</td></tr>';
   } catch (e) {
@@ -255,7 +276,7 @@ function renderPaymentsTable(rows) {
       <td class="num">₹${Number(pay.Amount).toFixed(2)}</td>
       <td><span class="tag ${pay.Status === 'Completed' ? 'completed' : 'open'}">${pay.Status}</span></td>
       <td>${fmtDate(pay.PaymentDate)}</td>
-      <td>${pay.Status === 'Pending' ? `<button class="btn-text" style="color:var(--teal)" onclick="markPaid(${pay.PaymentID})">Mark Paid</button>` : ''}</td>
+      <td>${pay.Status === 'Pending' ? `<button class="btn-success btn-sm" onclick="markPaid(${pay.PaymentID})">Mark Paid</button>` : ''}</td>
     </tr>
   `).join('') || '<tr><td colspan="5" class="hint">No payments yet.</td></tr>';
 }
@@ -299,13 +320,26 @@ async function loadProfiles() {
       <div class="profile-card">
         <span class="role">${u.Role}</span>
         <h3>${u.Name}</h3>
-        <p>${u.Bio || 'No bio added yet.'}</p>
-        ${u.Role === 'Freelancer' ? `<p style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gold)">${ratingText}</p>` : ''}
+        ${u.Bio ? `<p class="bio-text">"${u.Bio}"</p>` : '<p class="bio-text" style="opacity:0.5">No bio added yet.</p>'}
+        ${u.Role === 'Freelancer' ? `<p class="rating-text">${ratingText}</p>` : ''}
         ${u.PortfolioLink ? `<a href="${u.PortfolioLink}" target="_blank" rel="noopener">View portfolio →</a>` : ''}
+        <div style="margin-top:12px;padding-top:10px;border-top:1.5px solid #ccc;">
+          <button class="btn-danger btn-sm" onclick="deleteProfile(${u.UserID}, '${u.Name.replace(/'/g, "\\'")}')">Delete Profile</button>
+        </div>
       </div>
     `;
   }).join('') || '<p class="hint">No profiles yet.</p>';
 }
+
+window.deleteProfile = async (id, name) => {
+  if (!confirm(`Delete profile for "${name}"? This cannot be undone.`)) return;
+  try {
+    await api(`/users/${id}`, { method: 'DELETE' });
+    toast('Profile deleted');
+    loadProfiles();
+    loadDashboard();
+  } catch (e) { toast(e.message, true); }
+};
 
 document.getElementById('userForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -316,6 +350,7 @@ document.getElementById('userForm').addEventListener('submit', async (e) => {
         Name: document.getElementById('userName').value,
         Email: document.getElementById('userEmail').value,
         Role: document.getElementById('userRole').value,
+        Bio: document.getElementById('userBio').value,
         PortfolioLink: document.getElementById('userPortfolio').value
       })
     });

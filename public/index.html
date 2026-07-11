@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fieldwork — Freelancer Collaboration Platform</title>
+<meta name="description" content="Fieldwork is a freelancer collaboration platform for managing projects, time tracking, payments, shared files, and profiles.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -41,15 +42,26 @@
         <h1>Dashboard</h1>
         <p class="sub">Everything running through your workspace, at a glance.</p>
       </header>
-      <div class="stat-row" id="statRow">
-        <div class="stat-card"><span class="stat-label">Active Projects</span><span class="stat-value" id="statProjects">—</span></div>
-        <div class="stat-card"><span class="stat-label">Hours Logged</span><span class="stat-value" id="statHours">—</span></div>
-        <div class="stat-card"><span class="stat-label">Pending Payments</span><span class="stat-value" id="statPending">—</span></div>
-        <div class="stat-card"><span class="stat-label">Freelancers</span><span class="stat-value" id="statUsers">—</span></div>
+
+      <!-- Loading indicator -->
+      <div class="dashboard-loading" id="dashboardLoading">
+        <div class="spinner"></div>
+        <span class="loading-text">Loading dashboard data…</span>
+        <span class="loading-sub">Fetching projects, hours, and payments from the server</span>
       </div>
-      <div class="panel">
-        <h2>Recent Projects</h2>
-        <div id="dashProjectsList" class="mini-list"></div>
+
+      <!-- Dashboard content (hidden while loading) -->
+      <div class="dashboard-content is-loading" id="dashboardContent">
+        <div class="stat-row" id="statRow">
+          <div class="stat-card"><span class="stat-label">Active Projects</span><span class="stat-value" id="statProjects">—</span></div>
+          <div class="stat-card"><span class="stat-label">Hours Logged</span><span class="stat-value" id="statHours">—</span></div>
+          <div class="stat-card"><span class="stat-label">Pending Payments</span><span class="stat-value" id="statPending">—</span></div>
+          <div class="stat-card"><span class="stat-label">Freelancers</span><span class="stat-value" id="statUsers">—</span></div>
+        </div>
+        <div class="panel">
+          <h2>Recent Projects</h2>
+          <div id="dashProjectsList" class="mini-list"></div>
+        </div>
       </div>
     </section>
 
@@ -91,7 +103,7 @@
 
       <div class="table-wrap">
         <table id="filesTable">
-          <thead><tr><th>File</th><th>Size</th><th>Uploaded</th><th></th></tr></thead>
+          <thead><tr><th>File</th><th>Size</th><th>Uploaded</th><th>Actions</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -156,15 +168,23 @@
         <p class="sub">Portfolios, ratings, and reviews — the trust layer for every match.</p>
       </header>
 
-      <form class="form-inline" id="userForm">
-        <input type="text" id="userName" placeholder="Full name" required>
-        <input type="email" id="userEmail" placeholder="Email" required>
-        <select id="userRole" required>
-          <option value="Freelancer">Freelancer</option>
-          <option value="Client">Client</option>
-        </select>
-        <input type="text" id="userPortfolio" placeholder="Portfolio link (optional)">
-        <button type="submit" class="btn-primary">Create Profile</button>
+      <form class="form-inline" id="userForm" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">
+          <input type="text" id="userName" placeholder="Full name" required>
+          <input type="email" id="userEmail" placeholder="Email" required>
+          <select id="userRole" required>
+            <option value="Freelancer">Freelancer</option>
+            <option value="Client">Client</option>
+          </select>
+          <input type="text" id="userPortfolio" placeholder="Portfolio link (optional)">
+        </div>
+        <div style="margin-top:10px;">
+          <label for="userBio">Bio</label>
+          <textarea id="userBio" placeholder="Write a short bio about yourself…" rows="3"></textarea>
+        </div>
+        <div style="margin-top:10px;">
+          <button type="submit" class="btn-primary">Create Profile</button>
+        </div>
       </form>
 
       <div class="card-grid" id="profilesGrid"></div>
